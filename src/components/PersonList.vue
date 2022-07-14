@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import { Person } from './Persons.vue'
 
 type Props = {
@@ -9,8 +10,14 @@ defineProps<Props>()
 
 const emit = defineEmits(['delete'])
 
-const onClickDelete  = (id: number) => {
-	emit('delete', id)
+const isDialogOpen = ref<boolean>(false)
+
+const onClickDelete  = (id: number, name: string) => {
+	isDialogOpen.value = !isDialogOpen.value
+
+	if (confirm('Delete ' + name + '?')) {
+		emit('delete', id)
+	}
 }
 </script>
 
@@ -18,9 +25,14 @@ const onClickDelete  = (id: number) => {
 	<li v-for="person in persons" :key="person.id" class="person-list">
 		<span>{{ person.name }}</span>
 		<span>age:{{ person.age }}</span>
-		<button @click="onClickDelete(person.id)">
+		<button @click="onClickDelete(person.id, person.name)">
 			<span>delete</span>
 		</button>
+		<teleport to="body">
+			<dialog :open="isDialogOpen" class="dialog">
+				<span>Dialog</span>
+			</dialog>
+		</teleport>
 	</li>
 </template>
 
@@ -36,5 +48,17 @@ const onClickDelete  = (id: number) => {
 	background-color: rgb(228, 201, 133);
 	padding: 8px 20px;
 	width: 300px;
+}
+
+.dialog {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	height: 300px;
+	width: 400px;
+	margin: auto;
+	background-color: aliceblue;
 }
 </style>
